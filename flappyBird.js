@@ -48,9 +48,7 @@ function draw() {
       pipe.push({ x: canvas.width, y: Math.floor(Math.random() * pipeNorth.height) - pipeNorth.height });
     }
 
-    if (birdY + currentBirdSprite.height >= canvas.height - fg.height || birdY + currentBirdSprite.height >= canvas.height - fg.height + 30
-      || birdY <= 0 || birdY + currentBirdSprite.height >= pipe[i].y + constant - gap && birdY <= pipe[i].y + pipeNorth.height
-      && pipe[i].x <= currentBirdSprite.width) {
+    if (bird_hit_ground(birdY, currentBirdSprite, canvas, fg) || bird_hit_ceiling(birdY) || bird_hit_pipe(birdY, currentBirdSprite, pipe[i], pipeNorth, constant, gap)) {
         location.reload(); // reload the page when the bird hits the ground or pipes
     }
 
@@ -68,4 +66,30 @@ function draw() {
   ctx.font = "20px Verdana";
   ctx.fillText("Score: " + score, 10, canvas.height - 20);
 
+}
+
+
+
+function bird_hit_ground(birdY, currentBirdSprite, canvas, fg) {
+    return birdY + currentBirdSprite.height >= canvas.height - fg.height;
+}
+
+function bird_hit_ceiling(birdY) {
+    return birdY <= 0;
+}
+
+function bird_hit_pipe(birdY, currentBirdSprite, pipe, pipeNorth, constant, gap) {
+    return birdY + currentBirdSprite.height >= pipe.y + constant - gap && 
+           birdY <= pipe.y + pipeNorth.height;
+}
+
+
+function get_next_bird_sprite(currentBirdSprite, birdUpflap, birdMidflap, birdDownflap) {
+    if (currentBirdSprite == birdMidflap) {
+        return birdUpflap;
+    } else if (currentBirdSprite == birdUpflap) {
+        return birdDownflap;
+    } else {
+        return birdMidflap;
+    }
 }
