@@ -1,6 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Image assets
 const birdUpflap = new Image();
 const birdMidflap = new Image();
 const birdDownflap = new Image();
@@ -9,6 +10,7 @@ const fg = new Image();
 const pipeNorth = new Image();
 const pipeSouth = new Image();
 
+// Setting the image sources
 birdUpflap.src = "assets/bluebird-upflap.png";
 birdMidflap.src = "assets/bluebird-midflap.png";
 birdDownflap.src = "assets/bluebird-downflap.png";
@@ -17,6 +19,7 @@ fg.src = "assets/base.png";
 pipeNorth.src = "assets/pipe-green.png";
 pipeSouth.src = "assets/pipe-green.png";
 
+// Game variables
 const gap = 85;
 const constant = pipeNorth.height + gap;
 let birdY = 150;
@@ -33,7 +36,6 @@ function moveUp(e) {
 }
 
 let currentBirdSprite = birdMidflap;
-let birdFrameCounter = 0;
 
 function draw() {
   ctx.drawImage(bg, 0, 0);
@@ -48,7 +50,9 @@ function draw() {
       pipe.push({ x: canvas.width, y: Math.floor(Math.random() * pipeNorth.height) - pipeNorth.height });
     }
 
-    if (bird_hit_ground(birdY, currentBirdSprite, canvas, fg) || bird_hit_ceiling(birdY) || bird_hit_pipe(birdY, currentBirdSprite, pipe[i], pipeNorth, constant, gap)) {
+    if (birdY + currentBirdSprite.height >= canvas.height - fg.height ||
+        birdY <= 0 ||
+        birdY + currentBirdSprite.height >= pipe[i].y + constant - gap && birdY <= pipe[i].y + pipeNorth.height) {
         location.reload(); // reload the page when the bird hits the ground or pipes
     }
 
@@ -65,31 +69,7 @@ function draw() {
   ctx.fillStyle = "#000";
   ctx.font = "20px Verdana";
   ctx.fillText("Score: " + score, 10, canvas.height - 20);
-
 }
 
-
-
-function bird_hit_ground(birdY, currentBirdSprite, canvas, fg) {
-    return birdY + currentBirdSprite.height >= canvas.height - fg.height;
-}
-
-function bird_hit_ceiling(birdY) {
-    return birdY <= 0;
-}
-
-function bird_hit_pipe(birdY, currentBirdSprite, pipe, pipeNorth, constant, gap) {
-    return birdY + currentBirdSprite.height >= pipe.y + constant - gap && 
-           birdY <= pipe.y + pipeNorth.height;
-}
-
-
-function get_next_bird_sprite(currentBirdSprite, birdUpflap, birdMidflap, birdDownflap) {
-    if (currentBirdSprite == birdMidflap) {
-        return birdUpflap;
-    } else if (currentBirdSprite == birdUpflap) {
-        return birdDownflap;
-    } else {
-        return birdMidflap;
-    }
-}
+// Initialize the game loop
+setInterval(draw, 20);
