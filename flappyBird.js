@@ -23,15 +23,15 @@ const constant = pipeNorth.height + gap;
 let birdY = 150;
 let gravity = 1.5;
 let score = 0;
-let birdFrame = 0; // For cycling through bird frames
+let birdFrame = 0;
 const birdSprites = [birdDownflap, birdMidflap, birdUpflap];
-let pipe = [{ x: canvas.width + 10, y: 0 }]; // Initial position adjusted
+let pipe = [{ x: canvas.width + 10, y: 0 }];
 
 document.addEventListener('keydown', moveUp);
 
 function moveUp(e) {
   if (e.code === "Space") {
-    birdY -= 20; // Reduced jump height for smoother movement
+    birdY -= 20;
   }
 }
 
@@ -42,7 +42,7 @@ function draw() {
     ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y);
     ctx.save();
     ctx.translate(pipe[i].x, pipe[i].y + constant);
-    ctx.rotate(Math.PI); // Rotate 180 degrees for the upper pipe
+    ctx.rotate(Math.PI);
     ctx.drawImage(pipeNorth, -pipeNorth.width, -pipeNorth.height);
     ctx.restore();
 
@@ -52,10 +52,10 @@ function draw() {
       pipe.push({ x: canvas.width, y: Math.floor(Math.random() * pipeNorth.height) - pipeNorth.height });
     }
 
-    if (birdY + birdSprites[birdFrame].height >= canvas.height - fg.height ||
-        birdY + birdSprites[birdFrame].height / 2 >= pipe[i].y && birdY + birdSprites[birdFrame].height / 2 <= pipe[i].y + pipeNorth.height ||
-        birdY + birdSprites[birdFrame].height / 2 >= pipe[i].y + constant && birdY <= pipe[i].y + constant + pipeNorth.height) {
-        location.reload(); // reload the page when the bird hits the ground or pipes
+    if ((birdY + birdSprites[birdFrame].height >= canvas.height - fg.height) ||
+        (birdY <= pipe[i].y + pipeNorth.height && birdY + birdSprites[birdFrame].height >= pipe[i].y) ||
+        (birdY + birdSprites[birdFrame].height >= pipe[i].y + constant && birdY <= pipe[i].y + constant + gap)) {
+        return; // Stop the game when the bird hits the ground or pipes
     }
 
     if (pipe[i].x === 5) {
@@ -66,7 +66,7 @@ function draw() {
   ctx.drawImage(fg, 0, canvas.height - fg.height);
   ctx.drawImage(birdSprites[birdFrame], 10, birdY);
 
-  birdFrame = (birdFrame + 1) % 3; // Cycle through bird sprites for flapping effect
+  birdFrame = (birdFrame + 1) % 3;
   birdY += gravity;
 
   ctx.fillStyle = "#000";
