@@ -8,7 +8,6 @@ const birdDownflap = new Image();
 const bg = new Image();
 const fg = new Image();
 const pipeNorth = new Image();
-const pipeSouth = new Image();
 
 // Setting the image sources
 birdUpflap.src = "assets/bluebird-upflap.png";
@@ -17,7 +16,6 @@ birdDownflap.src = "assets/bluebird-downflap.png";
 bg.src = "assets/background-day.png";
 fg.src = "assets/base.png";
 pipeNorth.src = "assets/pipe-green.png";
-pipeSouth.src = "assets/pipe-green.png";
 
 // Game variables
 const gap = 85;
@@ -25,24 +23,28 @@ const constant = pipeNorth.height + gap;
 let birdY = 150;
 let gravity = 1.5;
 let score = 0;
-let pipe = [{ x: canvas.width, y: 0 }];
+let birdFrame = 0; // For cycling through bird frames
+const birdSprites = [birdDownflap, birdMidflap, birdUpflap];
+let pipe = [{ x: canvas.width + 10, y: 0 }]; // Initial position adjusted
 
 document.addEventListener('keydown', moveUp);
 
 function moveUp(e) {
   if (e.code === "Space") {
-    birdY -= 25;
+    birdY -= 20; // Reduced jump height for smoother movement
   }
 }
-
-let currentBirdSprite = birdMidflap;
 
 function draw() {
   ctx.drawImage(bg, 0, 0);
 
   for (let i = 0; i < pipe.length; i++) {
     ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y);
-    ctx.drawImage(pipeSouth, pipe[i].x, pipe[i].y + constant);
+    ctx.save();
+    ctx.translate(pipe[i].x, pipe[i].y + constant);
+    ctx.rotate(Math.PI); // Rotate 180 degrees for the upper pipe
+    ctx.drawImage(pipeNorth, -pipeNorth.width, -pipeNorth.height);
+    ctx.restore();
 
     pipe[i].x--;
 
@@ -50,9 +52,9 @@ function draw() {
       pipe.push({ x: canvas.width, y: Math.floor(Math.random() * pipeNorth.height) - pipeNorth.height });
     }
 
-    if (birdY + currentBirdSprite.height >= canvas.height - fg.height ||
-        birdY <= 0 ||
-        birdY + currentBirdSprite.height >= pipe[i].y + constant - gap && birdY <= pipe[i].y + pipeNorth.height) {
+    if (birdY + birdSprites[birdFrame].height >= canvas.height - fg.height ||
+        birdY + birdSprites[birdFrame].height / 2 >= pipe[i].y && birdY + birdSprites[birdFrame].height / 2 <= pipe[i].y + pipeNorth.height ||
+        birdY + birdSprites[birdFrame].height / 2 >= pipe[i].y + constant && birdY <= pipe[i].y + constant + pipeNorth.height) {
         location.reload(); // reload the page when the bird hits the ground or pipes
     }
 
@@ -62,8 +64,9 @@ function draw() {
   }
 
   ctx.drawImage(fg, 0, canvas.height - fg.height);
-  ctx.drawImage(currentBirdSprite, 10, birdY);
+  ctx.drawImage(birdSprites[birdFrame], 10, birdY);
 
+  birdFrame = (birdFrame + 1) % 3; // Cycle through bird sprites for flapping effect
   birdY += gravity;
 
   ctx.fillStyle = "#000";
