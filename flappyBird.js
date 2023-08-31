@@ -26,11 +26,12 @@ let score = 0;
 let birdFrame = 0;
 const birdSprites = [birdDownflap, birdMidflap, birdUpflap];
 let pipe = [{ x: canvas.width + 10, y: 0 }];
+let gameOver = false; // Added a game over state
 
 document.addEventListener('keydown', moveUp);
 
 function moveUp(e) {
-  if (e.code === "Space") {
+  if (e.code === "Space" && !gameOver) {
     birdY -= 20;
   }
 }
@@ -55,7 +56,7 @@ function draw() {
     if ((birdY + birdSprites[birdFrame].height >= canvas.height - fg.height) ||
         (birdY <= pipe[i].y + pipeNorth.height && birdY + birdSprites[birdFrame].height >= pipe[i].y) ||
         (birdY + birdSprites[birdFrame].height >= pipe[i].y + constant && birdY <= pipe[i].y + constant + gap)) {
-        return; // Stop the game when the bird hits the ground or pipes
+        gameOver = true; // Set game over state when the bird hits the ground or pipes
     }
 
     if (pipe[i].x === 5) {
@@ -72,6 +73,10 @@ function draw() {
   ctx.fillStyle = "#000";
   ctx.font = "20px Verdana";
   ctx.fillText("Score: " + score, 10, canvas.height - 20);
+  
+  if (gameOver) {
+    ctx.fillText("Game Over", canvas.width / 2 - 40, canvas.height / 2);
+  }
 }
 
 // Initialize the game loop
