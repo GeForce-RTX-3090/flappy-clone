@@ -30,7 +30,7 @@ document.addEventListener('keydown', moveUp);
 
 function moveUp(e) {
   if (e.code === "Space") {
-    birdY -= 30; // Increase the jump height slightly for better control
+    birdY -= 30;
   }
 }
 
@@ -40,19 +40,23 @@ function draw() {
 
   for (let i = 0; i < pipe.length; i++) {
     const constant = pipeNorth.height + gap;
-    ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y);
-    ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y + constant);
+    ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y + constant); // Lower pipe
+    ctx.save();
+    ctx.translate(pipe[i].x + pipeNorth.width, pipe[i].y); // Set rotation point to the right side of the pipe
+    ctx.rotate(Math.PI); // Rotate the canvas context
+    ctx.drawImage(pipeNorth, 0, 0); // Draw the upper pipe
+    ctx.restore();
 
     pipe[i].x--;
 
-    if (pipe[i].x === canvas.width / 2) { // Generate new pipes at half canvas width
+    if (pipe[i].x === canvas.width / 2) {
       pipe.push({ x: canvas.width, y: -pipeNorth.height + Math.floor(Math.random() * pipeNorth.height) });
     }
 
     // Collision checks
-    if ((birdY + birdSprites[birdFrame].height >= canvas.height - fg.height) ||
-        (birdY <= pipe[i].y + pipeNorth.height && birdY + birdSprites[birdFrame].height >= pipe[i].y) ||
-        (birdY + birdSprites[birdFrame].height >= pipe[i].y + constant && birdY <= pipe[i].y + constant + gap)) {
+    if (birdY >= canvas.height - fg.height ||
+        birdY + birdSprites[birdFrame].height / 2 <= pipe[i].y + constant && birdY + birdSprites[birdFrame].height / 2 >= pipe[i].y ||
+        birdY + birdSprites[birdFrame].height / 2 >= pipe[i].y + constant && birdY + birdSprites[birdFrame].height / 2 <= pipe[i].y + constant + gap) {
         ctx.fillStyle = "#000";
         ctx.font = "30px Verdana";
         ctx.fillText("Game Over", canvas.width / 2 - 80, canvas.height / 2);
