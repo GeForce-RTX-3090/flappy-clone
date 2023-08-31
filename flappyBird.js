@@ -19,44 +19,44 @@ pipeNorth.src = "assets/pipe-green.png";
 
 // Game variables
 const gap = 85;
-const constant = pipeNorth.height + gap;
-let birdY = 150;
+let birdY = canvas.height / 2 - 10; // Center the bird vertically
 let gravity = 1.5;
 let score = 0;
 let birdFrame = 0;
 const birdSprites = [birdDownflap, birdMidflap, birdUpflap];
-let pipe = [{ x: canvas.width + 10, y: 0 }];
-let gameOver = false; // Added a game over state
+let pipe = [{ x: canvas.width, y: -pipeNorth.height + Math.floor(Math.random() * pipeNorth.height) }];
 
 document.addEventListener('keydown', moveUp);
 
 function moveUp(e) {
-  if (e.code === "Space" && !gameOver) {
-    birdY -= 20;
+  if (e.code === "Space") {
+    birdY -= 30; // Increase the jump height slightly for better control
   }
 }
 
 function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
   ctx.drawImage(bg, 0, 0);
 
   for (let i = 0; i < pipe.length; i++) {
+    const constant = pipeNorth.height + gap;
     ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y);
-    ctx.save();
-    ctx.translate(pipe[i].x, pipe[i].y + constant);
-    ctx.rotate(Math.PI);
-    ctx.drawImage(pipeNorth, -pipeNorth.width, -pipeNorth.height);
-    ctx.restore();
+    ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y + constant);
 
     pipe[i].x--;
 
-    if (pipe[i].x === 125) {
-      pipe.push({ x: canvas.width, y: Math.floor(Math.random() * pipeNorth.height) - pipeNorth.height });
+    if (pipe[i].x === canvas.width / 2) { // Generate new pipes at half canvas width
+      pipe.push({ x: canvas.width, y: -pipeNorth.height + Math.floor(Math.random() * pipeNorth.height) });
     }
 
+    // Collision checks
     if ((birdY + birdSprites[birdFrame].height >= canvas.height - fg.height) ||
         (birdY <= pipe[i].y + pipeNorth.height && birdY + birdSprites[birdFrame].height >= pipe[i].y) ||
         (birdY + birdSprites[birdFrame].height >= pipe[i].y + constant && birdY <= pipe[i].y + constant + gap)) {
-        gameOver = true; // Set game over state when the bird hits the ground or pipes
+        ctx.fillStyle = "#000";
+        ctx.font = "30px Verdana";
+        ctx.fillText("Game Over", canvas.width / 2 - 80, canvas.height / 2);
+        return;
     }
 
     if (pipe[i].x === 5) {
@@ -66,17 +66,12 @@ function draw() {
 
   ctx.drawImage(fg, 0, canvas.height - fg.height);
   ctx.drawImage(birdSprites[birdFrame], 10, birdY);
-
   birdFrame = (birdFrame + 1) % 3;
   birdY += gravity;
 
   ctx.fillStyle = "#000";
   ctx.font = "20px Verdana";
   ctx.fillText("Score: " + score, 10, canvas.height - 20);
-  
-  if (gameOver) {
-    ctx.fillText("Game Over", canvas.width / 2 - 40, canvas.height / 2);
-  }
 }
 
 // Initialize the game loop
